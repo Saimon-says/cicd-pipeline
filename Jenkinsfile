@@ -44,22 +44,23 @@ pipeline {
     stage('Deploy') {
       steps {
         script {
-          def img      = "${IMAGE_NAME}:${IMAGE_TAG}"
-          def name     = "${CONTAINER_NAME}"
-          def hostPort = (BRANCH == 'main') ? 3000 : 3001
+          // pull your env vars from `env`
+          def branch        = env.BRANCH
+          def containerName = "node${branch}"
+          def image         = "${containerName}:${env.IMAGE_TAG}"
+          def hostPort      = (branch == 'main') ? 3000 : 3001
 
-          echo "🔁 Stopping & removing old container (if any): ${name}"
-          sh "docker rm -f ${name} || true"
+          echo "🔁 Stopping & removing any old container named ${containerName}"
+          sh "docker rm -f ${containerName} || true"
 
-          echo "🚀 Launching new container ${name} on port ${hostPort}"
+          echo "🚀 Launching new container ${containerName} on port ${hostPort}"
           sh """
-            docker run -d \
-              --name ${name} \
+              docker run -d \
+              --name ${containerName} \
               --expose 3000 \
               -p ${hostPort}:3000 \
-              ${img}
-          """
-
+              ${image}
+            """
         }
       }
     }
