@@ -44,9 +44,22 @@ pipeline {
     stage('Deploy') {
       steps {
         script {
-          def fullImage = "${IMAGE_NAME}:${IMAGE_TAG}"
-          echo "🚀 Deploying ${fullImage}"
-          //sh "docker push ${fullImage}"
+          def img      = "${IMAGE_NAME}:${IMAGE_TAG}"
+          def name     = "${CONTAINER_NAME}"
+          def hostPort = (BRANCH == 'main') ? 3000 : 3001
+
+          echo "🔁 Stopping & removing old container (if any): ${name}"
+          sh "docker rm -f ${name} || true"
+
+          echo "🚀 Launching new container ${name} on port ${hostPort}"
+          sh """
+            docker run -d \
+              --name ${name} \
+              --expose 3000 \
+              -p ${hostPort}:3000 \
+              ${img}
+          """
+
         }
       }
     }
