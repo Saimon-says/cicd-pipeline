@@ -6,16 +6,15 @@ pipeline {
   }
 
   environment {
-    IMAGE_TAG  = "v1.0"
-    RAW_BRANCH = "${env.BRANCH_NAME ?: 'dev'}"
-    BRANCH     = "${(RAW_BRANCH == 'main' || RAW_BRANCH == 'dev') ? RAW_BRANCH : 'dev'}"
+    BRANCH     = "${env.BRANCH_NAME == 'main' ? 'main' : 'dev'}"
+    IMAGE_TAG  = 'v1.0'
     IMAGE_NAME = "node${BRANCH}"
   }
 
   stages {
-    stage('Install') {
+    stage('Build') {
       steps {
-        echo "🔧 Installing dependencies…"
+        echo "🔧 Building sources …"
         sh 'npm install'
       }
     }
